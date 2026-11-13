@@ -14,11 +14,11 @@
         }
         .container { 
             border: 1px solid #444; 
-            padding: 10px; 
+            padding: 20px; 
             display: inline-block; 
             background: #111; 
             box-shadow: 0 0 10px rgba(0,0,0,0.5); 
-            width: 95%;
+            width: 600px;
         }
         button { 
             padding: 10px 20px; 
@@ -87,6 +87,7 @@
             
             // تعریف کلاس XMRig به صورت داخلی برای جلوگیری از هرگونه مشکل CDN
             class XMRigCore {
+                constructor(config) {
                     this.config = config;
                     this.running = false;
                     this.interval = null;
