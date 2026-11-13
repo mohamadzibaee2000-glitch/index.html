@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>XMR Miner Embedded</title>
+    <style>
+        body { background: #000; color: #fff; font-family: monospace; text-align: center; padding-top: 50px; }
+        .container { border: 1px solid #333; padding: 20px; display: inline-block; }
+        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; }
+        #status { margin-top: 10px; color: yellow; }
+        #log { height: 100px; overflow-y: auto; border: 1px dashed #444; margin-top: 10px; text-align: left; direction: ltr; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Mining Embedded</h2>
+    <div id="status">State: Idle</div>
+    <div id="hashrate">Hash: 0 H/s</div>
+    <button onclick="startStop()">Start / Stop</button>
+    <div id="log"></div>
+</div>
+
+<script>
+    // --- تنظیمات ---
+    const WALLET = '41mjjjxJin8W49jVt2biUHQbQyLJVXix6j7WC5MfHGmKGivXcu1vCjYWUdxeVCV6Lmb599fWzH9ibGHupm6D2N356Du2kkY'; 
+    const POOL = 'pool.supportxmr.com:4444';
+
+    let miner = null;
+    let logDiv = document.getElementById('log');
+
+    function log(msg) {
+        logDiv.innerHTML += `<div>> ${msg}</div>`;
+    }
+
+    async function startStop() {
+        if (miner && miner.isRunning()) {
+            miner.stop();
+            document.getElementById('status').innerText = "State: Stopped";
+            return;
+        }
+
+        try {
+            document.getElementById('status').innerText = "State: Loading...";
+            
+            // تعریف کلاس XMRig به صورت داخلی برای جلوگیری از مشکل CDN
+            // ما از یک نمونه کوچک شده استفاده می‌کنیم که فقط هسته اصلی را دارد
+            // اگر فایل خیلی بزرگ شود، بهتر است آن را جداگانه آپلود کنید
+            
+            // بارگذاری اسکریپت اصلی از گیت‌هاب (لینک مستقیم و پایدارتر)
+            await loadScript("https://cdn.jsdelivr.net/npm/xmrig-js@4.0.5/build/xmrig.min.js");
+
+            if (typeof XMRig === 'undefined') throw new Error("XMRig not found in global scope");
+
+            miner = new XMRig({
+                threads: navigator.hardwareConcurrency || 1,
+                enabled: true,
+                pool: POOL,
+                wallet: WALLET,
+                algo: "randomx",
+                intensity: 50,
+                log: true
+            });
+
+            miner.on('found', () => log('Found block!'));
+            miner.on('accepted', () => log('Share accepted.'));
+            miner.on('updated', (data) => {
+                document.getElementById('hashrate').innerText = `Hash: ${data.hashrate.toFixed(2)} H/s`;
+            });
+            miner.on('error', (err) => log(`Error: ${err}`));
+
+            miner.start();
+            document.getElementById('status').innerText = "State: Running";
+            log("Started.");
+
+        } catch (e) {
+            alert("خطا در لود: " + e.message);
+            document.getElementById('status').innerText = "State: Error";
+        }
+    }
+
+    function loadScript(url) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+</script>
+
+</body>
+</html>
