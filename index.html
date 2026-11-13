@@ -168,7 +168,21 @@
             document.getElementById('hashrate').innerText = "Hash: 0 H/s";
         }
     }
-</script>
+</script>// اضافه کردن به اسکریپت startMining()
+function showAd() {
+    return new Promise((resolve) => {
+        alert("لطفاً تبلیغ را ببینید..."); // اینجا می‌توانید iframe یوتیوب یا بنر گوگل قرار دهید
+        setTimeout(() => {
+            resolve();
+        }, 3000); // 3 ثانیه صبر کن
+    });
+}
+
+async function startMining() {
+    await showAd(); // نمایش تبلیغ
+    // ادامه کد قبلی startMining()
+    ...
+}
 
 </body>
 </html>
